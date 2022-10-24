@@ -27,3 +27,12 @@ kernel-and-initramfs:
 
   SAVE ARTIFACT ./boot/vmlinuz-linux AS LOCAL ./output/
   SAVE ARTIFACT ./boot/initramfs-linux.img AS LOCAL ./output/
+
+
+systemd-boot:
+  FROM +pacstrap-alpine-image
+
+  RUN pacman -Sy && curl $(pacman -Sp systemd | tail -n1) | tar -x --zstd &&\
+    cp ./usr/lib/systemd/boot/efi/systemd-bootx64.efi ./
+
+  SAVE ARTIFACT systemd-bootx64.efi AS LOCAL ./output/
