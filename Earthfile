@@ -23,7 +23,7 @@ kernel-and-initramfs:
   FROM +pacstrap-alpine-image
 
   # Gets kernel and builds initramfs by hooks
-  COPY ./mkinitcpio.conf /etc/
+  COPY ./mkinitcpio.conf ./etc/
   RUN --mount=type=cache,target=./var/cache/pacman/pkg --privileged \
     pacstrap ./ sed linux mkinitcpio-archiso
 
