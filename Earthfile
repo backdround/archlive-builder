@@ -82,3 +82,26 @@ rootfs:
 
   SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
   SAVE ARTIFACT ./airootfs.sha512 ./ AS LOCAL ./output/
+
+
+live-iso:
+  RUN apk update && apk add xorriso
+
+  COPY \
+    +esp-image/esp.img \
+    +rootfs/airootfs.erofs \
+    +rootfs/airootfs.sha512 \
+    .
+
+  RUN \
+    install -m 644 -D ./esp.img ./iso/esp.img &&\
+    install -m 644 -D ./airootfs.erofs ./iso/arch/x86_64/airootfs.erofs &&\
+    install -m 644 -D ./airootfs.sha512 ./iso/arch/x86_64/airootfs.sha512 &&\
+    xorrisofs -r \
+      -V "ARCH_LIVE" \
+      -e esp.img \
+      --no-emul-boot \
+      -o ./live.iso \
+      ./iso
+
+  SAVE ARTIFACT ./live.iso AS LOCAL ./output/
