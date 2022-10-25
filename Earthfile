@@ -1,12 +1,13 @@
 VERSION 0.6
 FROM alpine:latest
 WORKDIR /work
-RUN apk update && apk upgrade && apk add bash
+RUN apk upgrade --update && apk add --no-cache bash
 
 
 pacstrap-alpine-image:
   # Installs required instuments.
-  RUN apk add pacman arch-install-scripts pacman-makepkg curl tar zstd
+  RUN apk add --update --no-cache pacman arch-install-scripts \
+    pacman-makepkg curl tar zstd
 
   COPY ./pacman-configs /etc/
 
@@ -27,7 +28,6 @@ kernel-and-initramfs:
   RUN --mount=type=cache,target=./var/cache/pacman/pkg --privileged \
     pacstrap ./ sed linux mkinitcpio-archiso
 
-  SAVE IMAGE kernel-and-initramfs-test
   SAVE ARTIFACT ./boot/vmlinuz-linux ./ AS LOCAL ./output/
   SAVE ARTIFACT ./boot/initramfs-linux.img ./ AS LOCAL ./output/
 
@@ -42,7 +42,7 @@ systemd-boot:
 
 
 esp-image:
-  RUN apk update && apk add mtools dosfstools
+  RUN apk add --update --no-cache mtools dosfstools
 
   COPY ./make-fat.sh ./
   COPY --dir systemd-loader ./
@@ -66,7 +66,7 @@ rootfs:
   FROM +pacstrap-alpine-image
 
   # Installs erofs
-  RUN apk update && apk add git automake autoconf libtool g++ pkgconf \
+  RUN apk --update --no-cache add git automake autoconf libtool g++ pkgconf \
     util-linux-dev make lz4-dev &&\
     git clone https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git &&\
     ( cd erofs-utils && ./autogen.sh && ./configure && make && make install ) &&\
@@ -87,7 +87,7 @@ rootfs:
 
 
 live-iso:
-  RUN apk update && apk add xorriso
+  RUN apk add --update --no-cache xorriso
 
   COPY \
     +esp-image/esp.img \
