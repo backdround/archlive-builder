@@ -8,7 +8,7 @@ pacstrap-alpine-image:
   # Installs required instuments.
   RUN apk add pacman arch-install-scripts pacman-makepkg curl tar zstd
 
-  COPY ./pacstrap-etc /etc/
+  COPY ./pacman-configs /etc/
 
   # Installs pacman keyring.
   RUN pacman -Sy && \
@@ -23,9 +23,11 @@ kernel-and-initramfs:
   FROM +pacstrap-alpine-image
 
   # Gets kernel and builds initramfs by hooks
+  COPY ./mkinitcpio.conf /etc/
   RUN --mount=type=cache,target=./var/cache/pacman/pkg --privileged \
     pacstrap ./ sed linux mkinitcpio-archiso
 
+  SAVE IMAGE kernel-and-initramfs-test
   SAVE ARTIFACT ./boot/vmlinuz-linux ./ AS LOCAL ./output/
   SAVE ARTIFACT ./boot/initramfs-linux.img ./ AS LOCAL ./output/
 
