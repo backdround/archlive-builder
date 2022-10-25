@@ -58,3 +58,27 @@ esp-image:
   RUN ./make-fat.sh ./esp ./esp.img ARCH_LIVE
 
   SAVE ARTIFACT ./esp.img ./ AS LOCAL ./output/
+
+
+rootfs:
+  FROM +pacstrap-alpine-image
+
+  # Installs erofs
+  RUN apk update && apk add git automake autoconf libtool g++ pkgconf \
+    util-linux-dev make lz4-dev &&\
+    git clone https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git &&\
+    ( cd erofs-utils && ./autogen.sh && ./configure && make && make install ) &&\
+    rm -rf erofs-utils
+
+  # Creates rootfs
+  RUN --mount=type=cache,target=./var/cache/pacman/pkg --privileged \
+    mkdir ./root && pacstrap ./root base
+
+  # Cleans up and builds rootfs
+  RUN rm -rf ./root/boot/{*,.*} ./root/var/lib/pacman/sync/* ./root/var/log/* &&\
+    echo -n '' > "./root/etc/machine-id" &&\
+    mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root &&\
+    sha512sum ./airootfs.erofs > airootfs.sha512
+
+  SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
+  SAVE ARTIFACT ./airootfs.sha512 ./ AS LOCAL ./output/
