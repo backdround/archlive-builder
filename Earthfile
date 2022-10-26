@@ -74,7 +74,8 @@ rootfs:
 
   # Creates rootfs
   RUN --mount=type=cache,target=./root/var/cache/pacman/pkg --privileged \
-    mkdir -p ./root && pacstrap ./root base
+    mkdir -p ./root && pacstrap ./root base linux
+
 
   # Cleans up and builds rootfs
   RUN rm -rf ./root/boot/{*,.*} ./root/var/lib/pacman/sync/* ./root/var/log/* &&\
