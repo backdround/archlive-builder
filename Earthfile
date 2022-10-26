@@ -73,8 +73,8 @@ rootfs:
     rm -rf erofs-utils
 
   # Creates rootfs
-  RUN --mount=type=cache,target=./var/cache/pacman/pkg --privileged \
-    mkdir ./root && pacstrap ./root base
+  RUN --mount=type=cache,target=./root/var/cache/pacman/pkg --privileged \
+    mkdir -p ./root && pacstrap ./root base
 
   # Cleans up and builds rootfs
   RUN rm -rf ./root/boot/{*,.*} ./root/var/lib/pacman/sync/* ./root/var/log/* &&\
