@@ -73,14 +73,13 @@ rootfs:
     rm -rf erofs-utils
 
   # Creates rootfs
+  COPY ./rootfs-configure.sh ./
   RUN --mount=type=cache,target=./root/var/cache/pacman/pkg --privileged \
-    mkdir -p ./root && pacstrap ./root base linux
+    mkdir -p ./root && pacstrap ./root base linux &&\
+    arch-chroot ./root < ./rootfs-configure.sh
 
-
-  # Cleans up and builds rootfs
-  RUN rm -rf ./root/boot/{*,.*} ./root/var/lib/pacman/sync/* ./root/var/log/* &&\
-    echo -n '' > "./root/etc/machine-id" &&\
-    mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root &&\
+  # Builds rootfs
+  RUN mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root &&\
     sha512sum ./airootfs.erofs > airootfs.sha512
 
   SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
