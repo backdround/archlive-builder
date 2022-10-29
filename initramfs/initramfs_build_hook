@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+build() {
+  add_module "overlay"
+  add_module "erofs"
+
+  add_runscript
+}

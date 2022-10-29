@@ -23,8 +23,8 @@ systemctl enable systemd-resolved.service
 
 
 # Configures autologin
-install -m 755 -d /etc/systemd/system/getty@tty1.service.d/
-cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
+install -m 755 -d /etc/systemd/system/getty@.service.d/
+cat > /etc/systemd/system/getty@.service.d/autologin.conf <<EOF
 [Service]
 ExecStart=
 ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin root %I \$TERM

@@ -1,0 +1,32 @@
+#!/bin/ash
+
+run_hook() {
+  export mount_handler="mount_readonly_fs_from_partition"
+}
+
+mount_readonly_fs_from_partition() {
+  local newroot="$1"
+
+  # Root must have been set by the base hook (resolve_device function)
+  local root_device="$root"
+  if [ -z "$root_device" ]; then
+    err "Root haven't been found."
+    echo
+    launch_interactive_shell
+  fi
+
+  if [ ! -b "$root_device" ]; then
+    err "Root isn't a block device."
+    echo
+    launch_interactive_shell
+  fi
+
+  mount --mkdir -o "ro,defaults" "$root_device" /run/realroot
+  mount --mkdir -t tmpfs overlay_upper -o size=256M,mode=0755 /run/cowspace
+
+  install -m 0755 -d /run/cowspace/work
+  install -m 0755 -d /run/cowspace/upper
+  mount -t overlay rootfs \
+    -o "lowerdir=/run/realroot,upperdir=/run/cowspace/upper,workdir=/run/cowspace/work" \
+    "$newroot"
+}

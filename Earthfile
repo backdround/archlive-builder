@@ -23,10 +23,14 @@ pacstrap-alpine-image:
 kernel-and-initramfs:
   FROM +pacstrap-alpine-image
 
-  # Gets kernel and builds initramfs by hooks
-  COPY ./mkinitcpio.conf ./etc/
+  # Gets kernel and builds custom initramfs by hooks
+  RUN install -m 755 -d ./etc/initcpio/{install,hooks}
+  COPY ./initramfs/mkinitcpio.conf ./etc/
+  COPY ./initramfs/initramfs_build_hook ./etc/initcpio/install/overlay_over_partition
+  COPY ./initramfs/initramfs_run_hook ./etc/initcpio/hooks/overlay_over_partition
+
   RUN --mount=type=cache,target=./var/cache/pacman/pkg --privileged \
-    pacstrap ./ sed linux mkinitcpio-archiso
+    pacstrap ./ sed linux mkinitcpio
 
   SAVE ARTIFACT ./boot/vmlinuz-linux ./ AS LOCAL ./output/
   SAVE ARTIFACT ./boot/initramfs-linux.img ./ AS LOCAL ./output/
@@ -87,31 +91,21 @@ rootfs:
   END
 
   # Builds rootfs
-  RUN mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root &&\
-    sha512sum ./airootfs.erofs > airootfs.sha512
+  RUN mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root
 
   SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
-  SAVE ARTIFACT ./airootfs.sha512 ./ AS LOCAL ./output/
 
 
 live-iso:
-  RUN apk add --update --no-cache xorriso
+  RUN apk add --update --no-cache sfdisk uuidgen
+
+  COPY ./make-image.sh ./
 
   COPY \
     +esp-image/esp.img \
     +rootfs/airootfs.erofs \
-    +rootfs/airootfs.sha512 \
-    .
+    ./
 
-  RUN \
-    install -m 644 -D ./esp.img ./iso/esp.img &&\
-    install -m 644 -D ./airootfs.erofs ./iso/arch/x86_64/airootfs.erofs &&\
-    install -m 644 -D ./airootfs.sha512 ./iso/arch/x86_64/airootfs.sha512 &&\
-    xorrisofs -r \
-      -V "ARCH_LIVE" \
-      -e esp.img \
-      --no-emul-boot \
-      -o ./live.iso \
-      ./iso
+  RUN ./make-image.sh ./esp.img ./airootfs.erofs ./live.img
 
-  SAVE ARTIFACT ./live.iso AS LOCAL ./output/
+  SAVE ARTIFACT ./live.img AS LOCAL ./output/
