@@ -11,9 +11,9 @@ error() {
   return 1
 }
 
-directory="$1"
-image_file="$2"
-volume_name="$3"
+directory="${1:-}"
+image_file="${2:-}"
+volume_name="${3:-}"
 
 
 # Checks arguments
@@ -28,8 +28,8 @@ test -z "$volume_name" &&\
 
 
 create_fat_directory() {
-  local path="$1"
-  local image_file="$2"
+  local path="${1:-}"
+  local image_file="${2:-}"
 
   test -z "$path" &&\
     error "Incorrect function usage: First argument must be a path"
