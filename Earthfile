@@ -77,21 +77,23 @@ rootfs:
     rm -rf erofs-utils
 
   # Creates rootfs
-  COPY ./rootfs-configure.sh ./
+  COPY ./rootfs/rootfs-pre-configure.sh ./
   RUN --mount=type=cache,target=./root/var/cache/pacman/pkg --privileged \
     mkdir -p ./root && pacstrap ./root base linux &&\
-    arch-chroot ./root < ./rootfs-configure.sh
+    arch-chroot ./root < ./rootfs-pre-configure.sh
 
   # Configures rootfs by user's script
-  ARG rootfs_final_configure
-  IF [ ! -z "$rootfs_final_configure" ]
-    COPY "$rootfs_final_configure" ./rootfs-final-configure.sh
-    RUN --privileged cp ./rootfs-final-configure.sh ./root/do.sh &&\
+  ARG rootfs_configure
+  IF [ ! -z "$rootfs_configure" ]
+    COPY "$rootfs_configure" ./root/do.sh
+    RUN --privileged chmod +x ./root/do.sh &&\
       arch-chroot ./root /do.sh && rm -rf ./root/do.sh
   END
 
-  # Builds rootfs
-  RUN mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root
+  # Cleanes up and builds rootfs
+  RUN --privileged rm -rf ./root/boot/* ./root/var/lib/pacman/sync/* \
+    ./root/var/log/* ./root/.bash_history && \
+    mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root
 
   SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
 

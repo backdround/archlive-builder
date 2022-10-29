@@ -7,6 +7,7 @@ set -o nounset
 # Fix package installation under arch-chroot.
 sed -i "s/CheckSpace/#CheckSpace/g" /etc/pacman.conf
 
+
 # Configures network.
 install -m 755 -d /etc/systemd/network
 cat > /etc/systemd/network/20-ethernet.network <<EOF
@@ -34,7 +35,3 @@ EOF
 # Configures hostname / id
 echo "archlive" > /etc/hostname
 echo -n '' > /etc/machine-id
-
-
-# Cleans up
-rm -rf /boot/* /var/lib/pacman/sync/* /var/log/*
