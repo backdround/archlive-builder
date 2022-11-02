@@ -124,3 +124,17 @@ live-img:
   RUN ./make-image.sh ./esp.img ./airootfs.erofs "$(cat rootfs_uuid.txt)" ./live.img
 
   SAVE ARTIFACT ./live.img AS LOCAL ./output/
+
+
+test-valid-image:
+  RUN apk add --update --no-cache \
+    qemu-system-x86_64 qemu-modules libvirt libvirt-qemu ovmf openssh &&\
+    cp /usr/share/OVMF/OVMF_CODE.fd ./
+  COPY ./test/test.sh .
+
+  COPY (+live-img/live.img \
+    --rootfs_configure=./test/rootfs-test-configure.sh \
+    --kernel_options="rw console=ttyS0") \
+    .
+
+  RUN --privileged ./test.sh ./live.img ./OVMF_CODE.fd
