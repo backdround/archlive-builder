@@ -1,4 +1,5 @@
 #!/bin/bash
+# Script makes fat image from directory with files.
 # Usage
 # ./make-fat.sh ./directory new-fat.img "FAT_LABEL"
 

@@ -4,6 +4,7 @@ WORKDIR /work
 RUN apk upgrade --update && apk add --no-cache bash
 
 
+# Makes base image with pacstrap utility.
 pacstrap-alpine-image:
   # Installs required instuments.
   RUN apk add --update --no-cache pacman arch-install-scripts \
@@ -20,6 +21,7 @@ pacstrap-alpine-image:
 
 
 
+# Gets kernel from arch repository and builds initramfs with custom hooks.
 kernel-and-initramfs:
   FROM +pacstrap-alpine-image
 
@@ -36,6 +38,7 @@ kernel-and-initramfs:
   SAVE ARTIFACT ./boot/initramfs-linux.img ./ AS LOCAL ./output/
 
 
+# Gets systemd boot loader from arch repository.
 systemd-boot:
   FROM +pacstrap-alpine-image
 
@@ -45,6 +48,7 @@ systemd-boot:
   SAVE ARTIFACT systemd-bootx64.efi AS LOCAL ./output/
 
 
+# Makes efi system partition image.
 esp-image:
   RUN apk add --update --no-cache mtools dosfstools
 
@@ -66,6 +70,7 @@ esp-image:
   SAVE ARTIFACT ./esp.img ./ AS LOCAL ./output/
 
 
+# Makes root file system by pacstrap.
 rootfs:
   FROM +pacstrap-alpine-image
 
@@ -98,6 +103,7 @@ rootfs:
   SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
 
 
+# Builds arch live image
 live-img:
   RUN apk add --update --no-cache sfdisk mtools uuidgen
 
@@ -126,6 +132,7 @@ live-img:
   SAVE ARTIFACT ./live.img AS LOCAL ./output/
 
 
+# Validates arch live image. It boots live image and checks failed services
 test-valid-image:
   RUN apk add --update --no-cache \
     qemu-system-x86_64 qemu-modules libvirt libvirt-qemu ovmf openssh &&\

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Script makes image with gpt from fs images
+# Usage:
+# ./make-image.sh ./esp.img ./rootfs.img "rootfs-uuid" ./out.img
 
 set -o errexit
 set -o pipefail

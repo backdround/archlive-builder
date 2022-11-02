@@ -1,6 +1,8 @@
 #!/bin/bash
 # Test runs live image in the virtual machine, connects to ssh server
 # and checks that services are successfully started.
+# Usage:
+# ./test.sh ./image.img ./OVMF_CODE.fd
 
 set -o errexit
 set -o pipefail
