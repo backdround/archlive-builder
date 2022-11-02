@@ -98,7 +98,7 @@ rootfs:
   SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
 
 
-live-iso:
+live-img:
   RUN apk add --update --no-cache sfdisk mtools uuidgen
 
   COPY ./make-image.sh ./
