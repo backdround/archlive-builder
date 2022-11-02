@@ -99,7 +99,7 @@ rootfs:
 
 
 live-iso:
-  RUN apk add --update --no-cache sfdisk uuidgen
+  RUN apk add --update --no-cache sfdisk mtools uuidgen
 
   COPY ./make-image.sh ./
 
@@ -108,6 +108,15 @@ live-iso:
     +rootfs/airootfs.erofs \
     ./
 
-  RUN ./make-image.sh ./esp.img ./airootfs.erofs ./live.img
+  # Generates random rootfs uuid
+  RUN --no-cache uuidgen > rootfs_uuid.txt
+
+  # Changes kernel boot options.
+  RUN mcopy -i ./esp.img ::/loader/entries/arch.conf . &&\
+    sed -i "s/{{partuuid}}/$(cat rootfs_uuid.txt)/g;" ./arch.conf &&\
+    mcopy -D o -i ./esp.img ./arch.conf ::/loader/entries/arch.conf
+
+  ## Creates live disk image
+  RUN ./make-image.sh ./esp.img ./airootfs.erofs "$(cat rootfs_uuid.txt)" ./live.img
 
   SAVE ARTIFACT ./live.img AS LOCAL ./output/

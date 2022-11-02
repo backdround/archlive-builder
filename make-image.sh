@@ -12,10 +12,12 @@ error() {
 # Gets filesystem images
 esp="${1:-}"
 rootfs="${2:-}"
-image="${3:-}"
+rootfs_uuid="${3:-}"
+image="${4:-}"
 test ! -f "$esp" && error "First argument must be an esp image file path"
 test ! -f "$rootfs" && error "Second argument must be an rootfs image file path"
-test -z "$image" && error "Third argument must be an building disk image file path"
+test -z "$rootfs_uuid" && error "Third argument must be an rootfs uuid"
+test -z "$image" && error "Forth argument must be an building disk image file path"
 
 
 # Calculates files sectors
@@ -40,7 +42,7 @@ start=$esp_offset_in_sectors, size=$esp_size_in_sectors, \
   type=c12a7328-f81f-11d2-ba4b-00a0c93ec93b
 
 start=$rootfs_offset_in_sectors, size=$rootfs_size_in_sectors, \
-  type=0fc63daf-8483-4772-8e79-3d69d8477de4, uuid=518fb369-0226-4ee1-87f7-15bd0cf05de5
+  type=0fc63daf-8483-4772-8e79-3d69d8477de4, uuid=$rootfs_uuid
 
 write
 " | sfdisk "$image"

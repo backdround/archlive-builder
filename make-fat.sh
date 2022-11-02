@@ -51,7 +51,9 @@ create_fat_directory() {
 
 # Creates fat image file.
 fat_size=$(du -s "$directory" | grep -o "^\S*")
-mkfs.fat -C -n "$volume_name" "$image_file" "$((fat_size + 2048))"
+# Adds some extra spaces for meta information and future changes
+block_count="$((fat_size + 1024 * 5))"
+mkfs.fat -C -n "$volume_name" "$image_file" "$block_count"
 
 # Copies directory files in image file
 files="$(cd "$directory" && find ./ -type f)"
