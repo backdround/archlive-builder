@@ -30,6 +30,7 @@ cat > /etc/systemd/system/getty@.service.d/autologin.conf <<EOF
 ExecStart=
 ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin root %I \$TERM
 EOF
+passwd -d root
 
 
 # Configures hostname / id
