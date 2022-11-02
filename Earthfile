@@ -108,12 +108,16 @@ live-iso:
     +rootfs/airootfs.erofs \
     ./
 
-  # Generates random rootfs uuid
-  RUN --no-cache uuidgen > rootfs_uuid.txt
+  ARG kernel_options="rw"
+
+  # Generates random rootfs uuid and escpaes kernel options.
+  RUN --no-cache uuidgen > rootfs_uuid.txt &&\
+    echo -E "$kernel_options" | sed 's/[/\&]/\\&/g' > kernel_options.txt
 
   # Changes kernel boot options.
   RUN mcopy -i ./esp.img ::/loader/entries/arch.conf . &&\
     sed -i "s/{{partuuid}}/$(cat rootfs_uuid.txt)/g;" ./arch.conf &&\
+    sed -i "s/{{kernel_options}}/$(cat kernel_options.txt)/g;" ./arch.conf &&\
     mcopy -D o -i ./esp.img ./arch.conf ::/loader/entries/arch.conf
 
   ## Creates live disk image
