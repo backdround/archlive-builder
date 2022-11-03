@@ -98,7 +98,7 @@ rootfs:
   # Cleanes up and builds rootfs
   RUN --privileged rm -rf ./root/boot/* ./root/var/lib/pacman/sync/* \
     ./root/var/log/* ./root/root/.bash_history && \
-    mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root
+    mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root > /dev/null
 
   SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
 
