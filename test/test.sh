@@ -32,8 +32,8 @@ qemu-system-x86_64 \
   -nographic \
   -enable-kvm -smp 6 -m 4G \
   -nic user,hostfwd=tcp::$port-:22 \
-  -drive "if=pflash,format=raw,readonly=true,file=./OVMF_CODE.fd" \
-  -drive "if=virtio,format=raw,file=./live.img" > /dev/null < /dev/null &
+  -drive "if=pflash,format=raw,readonly=true,file=$ovmf_code" \
+  -drive "if=virtio,format=raw,file=$image_file" > /dev/null < /dev/null &
 qemu_pid="$!"
 
 
@@ -47,8 +47,7 @@ trap stop_qemu EXIT
 
 # Checks that port is open
 timeout 10 bash -c "while ! nc -z 127.0.0.1 $port ; do sleep 0.1 ; done" || {
-  echo "Unable to boot qemu" >&2
-  exit 1
+  error "Unable to boot qemu"
 }
 echo "Qemu started live image"
 
@@ -59,8 +58,7 @@ ssh_options="-o UserKnownHostsFile=/dev/null
   -o StrictHostKeyChecking=no
   -o LogLevel=ERROR"
 timeout 120 ssh $ssh_options root@127.0.0.1 -p $port -T exit || {
-  echo "Unable to connect to ssh server" >&2
-  exit 1
+  error "Unable to connect to ssh server"
 }
 echo "Live image is connactable"
 
@@ -70,9 +68,7 @@ failed_services="$(ssh root@127.0.0.1 -p $port -T $ssh_options \
   systemctl list-units --legend=false --state=falied)"
 
 if [ ! -z "$failed_services" ]; then
-  echo "archlive failed with services:" >&2
-  echo "$failed_services" >&2
-  exit 1
+  error "archlive failed with services:\n$failed_services"
 fi
 echo "Live image starts without failed services"
 

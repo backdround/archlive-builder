@@ -135,7 +135,7 @@ live-img:
 # Validates arch live image. It boots live image and checks failed services
 test-valid-image:
   RUN apk add --update --no-cache \
-    qemu-system-x86_64 qemu-modules libvirt libvirt-qemu ovmf openssh &&\
+    qemu-system-x86_64 qemu-modules ovmf openssh &&\
     cp /usr/share/OVMF/OVMF_CODE.fd ./
   COPY ./test/test.sh .
 
