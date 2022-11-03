@@ -1,0 +1,15 @@
+name: Build live image
+on: [push]
+
+jobs:
+  run-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout git repository
+        uses: actions/checkout@v3
+      - name: Install earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.28/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: Show version
+        run: earthly --version
+      - name: Build image test
+        run: earthly --ci --allow-privileged +live-img
