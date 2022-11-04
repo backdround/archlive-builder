@@ -25,12 +25,17 @@ test ! -f "$image_file" &&\
 test ! -f "$ovmf_code" &&\
   error "Second argument must be an OVMF_CODE.fd file"
 
+# Checks if kvm exists in current environment.
+kvm_flag=""
+if [[ ! -z "$(lsmod | grep kvm)" ]]; then
+  kvm_flag="-enable-kvm"
+fi
 
 # Boots image file in the background
 port="60022"
 qemu-system-x86_64 \
   -nographic \
-  -enable-kvm -smp 6 -m 4G \
+  $kvm_flag -smp 6 -m 4G \
   -nic user,hostfwd=tcp::$port-:22 \
   -drive "if=pflash,format=raw,readonly=true,file=$ovmf_code" \
   -drive "if=virtio,format=raw,file=$image_file" > /dev/null < /dev/null &

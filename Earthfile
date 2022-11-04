@@ -43,8 +43,15 @@ docker-image-with-live-image:
     --use_random_rootfs_uuid=false) \
     .
 
+
+  IF [ ! -z "$(lsmod | grep kvm)" ]
+    ENV kvm_flag="-enable-kvm"
+  ELSE
+    ENV kvm_flag=""
+  END
+
   ENTRYPOINT qemu-system-x86_64 \
-    -nographic -enable-kvm -smp 6 -m 4G \
+    -nographic $kvm_flag -smp 6 -m 4G \
     -drive "if=pflash,format=raw,readonly=true,file=./OVMF_CODE.fd" \
     -drive "if=virtio,format=raw,file=./live.img"
 
