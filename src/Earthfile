@@ -115,9 +115,16 @@ live-img:
 
   ARG kernel_options="rw"
 
-  # Generates random rootfs uuid and escpaes kernel options.
-  RUN --no-cache uuidgen > rootfs_uuid.txt &&\
-    echo -E "$kernel_options" | sed 's/[/\&]/\\&/g' > kernel_options.txt
+  # Generates random rootfs uuid
+  ARG use_random_rootfs_uuid="true"
+  IF use_random_rootfs_uuid
+    RUN --no-cache uuidgen > rootfs_uuid.txt
+  ELSE
+    RUN uuidgen > rootfs_uuid.txt
+  END
+
+  # Escpaes kernel options
+  RUN echo -E "$kernel_options" | sed 's/[/\&]/\\&/g' > kernel_options.txt
 
   # Changes kernel boot options.
   RUN mcopy -i ./esp.img ::/loader/entries/arch.conf . &&\

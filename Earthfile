@@ -25,7 +25,8 @@ test-valid-image:
   ARG rootfs_configure_base64="$(cat ./rootfs-test-configure.sh | base64 -w 0)"
   COPY (src+live-img/live.img \
     --rootfs_configure_base64="$rootfs_configure_base64" \
-    --kernel_options="rw console=ttyS0") \
+    --kernel_options="rw console=ttyS0" \
+    --use_random_rootfs_uuid=false) \
     .
 
   RUN --privileged ./test.sh ./live.img ./OVMF_CODE.fd
@@ -37,7 +38,10 @@ image-with-image:
     qemu-system-x86_64 qemu-modules ovmf &&\
     cp /usr/share/OVMF/OVMF_CODE.fd ./
 
-  COPY (src+live-img/live.img --kernel_options="rw console=ttyS0") .
+  COPY (src+live-img/live.img \
+    --kernel_options="rw console=ttyS0" \
+    --use_random_rootfs_uuid=false) \
+    .
 
   ENTRYPOINT qemu-system-x86_64 \
     -nographic -enable-kvm -smp 6 -m 4G \
