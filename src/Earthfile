@@ -5,7 +5,7 @@ RUN apk upgrade --update && apk add --no-cache bash
 
 
 # Makes base image with pacstrap utility.
-pacstrap-alpine-image:
+pacstrap-alpine-docker-image:
   # Installs required instuments.
   RUN apk add --update --no-cache pacman arch-install-scripts \
     pacman-makepkg curl tar zstd
@@ -23,7 +23,7 @@ pacstrap-alpine-image:
 
 # Gets kernel from arch repository and builds initramfs with custom hooks.
 kernel-and-initramfs:
-  FROM +pacstrap-alpine-image
+  FROM +pacstrap-alpine-docker-image
 
   # Gets kernel and builds custom initramfs by hooks
   RUN install -m 755 -d ./etc/initcpio/{install,hooks}
@@ -40,7 +40,7 @@ kernel-and-initramfs:
 
 # Gets systemd boot loader from arch repository.
 systemd-boot:
-  FROM +pacstrap-alpine-image
+  FROM +pacstrap-alpine-docker-image
 
   RUN pacman -Sy && curl $(pacman -Sp systemd | tail -n1) | tar -x --zstd &&\
     cp ./usr/lib/systemd/boot/efi/systemd-bootx64.efi ./
@@ -49,7 +49,7 @@ systemd-boot:
 
 
 # Makes efi system partition image.
-esp-image:
+esp-partition:
   RUN apk add --update --no-cache mtools dosfstools
 
   COPY ./make-fat.sh ./
@@ -65,14 +65,14 @@ esp-image:
     install -m 644 ./vmlinuz-linux ./esp/vmlinuz-linux &&\
     install -m 644 ./initramfs-linux.img ./esp/initramfs-linux.img
 
-  RUN ./make-fat.sh ./esp ./esp.img ARCH_LIVE
+  RUN ./make-fat.sh ./esp ./esp.part ARCH_LIVE
 
-  SAVE ARTIFACT ./esp.img ./ AS LOCAL ./output/
+  SAVE ARTIFACT ./esp.part ./ AS LOCAL ./output/
 
 
-# Makes root file system by pacstrap.
-rootfs:
-  FROM +pacstrap-alpine-image
+# Makes root file system (erofs) by pacstrap.
+rootfs-partition:
+  FROM +pacstrap-alpine-docker-image
 
   # Installs erofs
   RUN apk --update --no-cache add git automake autoconf libtool g++ pkgconf \
@@ -97,20 +97,20 @@ rootfs:
   # Cleanes up and builds rootfs
   RUN --privileged rm -rf ./root/boot/* ./root/var/lib/pacman/sync/* \
     ./root/var/log/* ./root/root/.bash_history && \
-    mkfs.erofs '-zlz4hc,2' -E ztailpacking ./airootfs.erofs ./root > /dev/null
+    mkfs.erofs '-zlz4hc,2' -E ztailpacking ./rootfs.part ./root > /dev/null
 
-  SAVE ARTIFACT ./airootfs.erofs ./ AS LOCAL ./output/
+  SAVE ARTIFACT ./rootfs.part ./ AS LOCAL ./output/
 
 
 # Builds arch live image
-live-img:
+live-image:
   RUN apk add --update --no-cache sfdisk mtools uuidgen
 
   COPY ./make-image.sh ./
 
   COPY \
-    +esp-image/esp.img \
-    +rootfs/airootfs.erofs \
+    +esp-partition/esp.part \
+    +rootfs-partition/rootfs.part \
     ./
 
   ARG kernel_options="rw"
@@ -127,12 +127,12 @@ live-img:
   RUN echo -E "$kernel_options" | sed 's/[/\&]/\\&/g' > kernel_options.txt
 
   # Changes kernel boot options.
-  RUN mcopy -i ./esp.img ::/loader/entries/arch.conf . &&\
+  RUN mcopy -i ./esp.part ::/loader/entries/arch.conf . &&\
     sed -i "s/{{partuuid}}/$(cat rootfs_uuid.txt)/g;" ./arch.conf &&\
     sed -i "s/{{kernel_options}}/$(cat kernel_options.txt)/g;" ./arch.conf &&\
-    mcopy -D o -i ./esp.img ./arch.conf ::/loader/entries/arch.conf
+    mcopy -D o -i ./esp.part ./arch.conf ::/loader/entries/arch.conf
 
   ## Creates live disk image
-  RUN ./make-image.sh ./esp.img ./airootfs.erofs "$(cat rootfs_uuid.txt)" ./live.img
+  RUN ./make-image.sh ./esp.part ./rootfs.part "$(cat rootfs_uuid.txt)" ./live.img
 
   SAVE ARTIFACT ./live.img AS LOCAL ./output/

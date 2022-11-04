@@ -6,13 +6,13 @@ IMPORT --allow-privileged ./src/
 
 
 # Builds arch live image
-live-img:
-  COPY src+live-img/live.img .
+live-image:
+  COPY src+live-image/live.img .
   SAVE ARTIFACT ./live.img AS LOCAL output/live.img
 
 
 # Validates arch live image. It boots live image and checks failed services
-test-valid-image:
+test-live-image-boot:
   RUN apk add --update --no-cache \
     qemu-system-x86_64 qemu-modules ovmf openssh &&\
     cp /usr/share/OVMF/OVMF_CODE.fd ./
@@ -23,7 +23,7 @@ test-valid-image:
     .
 
   ARG rootfs_configure_base64="$(cat ./rootfs-test-configure.sh | base64 -w 0)"
-  COPY (src+live-img/live.img \
+  COPY (src+live-image/live.img \
     --rootfs_configure_base64="$rootfs_configure_base64" \
     --kernel_options="rw console=ttyS0" \
     --use_random_rootfs_uuid=false) \
@@ -33,12 +33,12 @@ test-valid-image:
 
 # Makes docker image with live-image configured for start on vm
 # with serial tty control
-image-with-image:
+docker-image-with-live-image:
   RUN apk add --update --no-cache \
     qemu-system-x86_64 qemu-modules ovmf &&\
     cp /usr/share/OVMF/OVMF_CODE.fd ./
 
-  COPY (src+live-img/live.img \
+  COPY (src+live-image/live.img \
     --kernel_options="rw console=ttyS0" \
     --use_random_rootfs_uuid=false) \
     .
@@ -48,4 +48,4 @@ image-with-image:
     -drive "if=pflash,format=raw,readonly=true,file=./OVMF_CODE.fd" \
     -drive "if=virtio,format=raw,file=./live.img"
 
-  SAVE IMAGE archiso/run
+  SAVE IMAGE archlive/live-image

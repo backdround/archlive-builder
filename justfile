@@ -1,14 +1,14 @@
 
 # Builds live image
-live-img:
-  earthly --allow-privileged +live-img
+build-live-image:
+  earthly --allow-privileged +live-image
 
-# Tests live image on qemu virtual machine
-test-valid-image:
-  earthly --allow-privileged +test-valid-image
+# Tests live image boot on qemu virtual machine
+test-live-image-boot:
+  earthly --allow-privileged +test-live-image-boot
 
-# Launches docker container with live image controlled by tty
+# Launches docker container interactive with live image controlled by tty
 run:
-  earthly --allow-privileged +image-with-image
-  docker container run --privileged --rm -it archiso/run
-  docker image rm archiso/run
+  earthly --allow-privileged +docker-image-with-live-image
+  docker container run --privileged --rm -it archlive/live-image
+  docker image rm archlive/live-image

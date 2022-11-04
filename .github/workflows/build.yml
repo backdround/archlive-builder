@@ -2,7 +2,7 @@ name: Build live image
 on: [push]
 
 jobs:
-  run-test:
+  build-live-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout git repository
@@ -12,4 +12,4 @@ jobs:
       - name: Show version
         run: earthly --version
       - name: Build image test
-        run: earthly --ci --allow-privileged +live-img
+        run: earthly --ci --allow-privileged +live-image
