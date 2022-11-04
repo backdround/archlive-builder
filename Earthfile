@@ -88,11 +88,10 @@ rootfs:
     arch-chroot ./root < ./rootfs-pre-configure.sh
 
   # Configures rootfs by user's script
-  ARG rootfs_configure
-  IF [ ! -z "$rootfs_configure" ]
-    COPY "$rootfs_configure" ./root/do.sh
-    RUN --privileged chmod +x ./root/do.sh &&\
-      arch-chroot ./root /do.sh && rm -rf ./root/do.sh
+  ARG rootfs_configure_base64
+  IF [ ! -z "$rootfs_configure_base64" ]
+    RUN --privileged echo "$rootfs_configure_base64" | base64 -d > ./root/do.sh &&\
+      chmod +x ./root/do.sh && arch-chroot ./root /do.sh && rm -rf ./root/do.sh
   END
 
   # Cleanes up and builds rootfs
@@ -137,10 +136,15 @@ test-valid-image:
   RUN apk add --update --no-cache \
     qemu-system-x86_64 qemu-modules ovmf openssh &&\
     cp /usr/share/OVMF/OVMF_CODE.fd ./
-  COPY ./test/test.sh .
 
+  COPY \
+    ./test/test.sh \
+    ./test/rootfs-test-configure.sh \
+    .
+
+  ARG rootfs_configure_base64="$(cat ./rootfs-test-configure.sh | base64 -w 0)"
   COPY (+live-img/live.img \
-    --rootfs_configure=./test/rootfs-test-configure.sh \
+    --rootfs_configure_base64="$rootfs_configure_base64" \
     --kernel_options="rw console=ttyS0") \
     .
 
