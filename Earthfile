@@ -29,3 +29,19 @@ test-valid-image:
     .
 
   RUN --privileged ./test.sh ./live.img ./OVMF_CODE.fd
+
+# Makes docker image with live-image configured for start on vm
+# with serial tty control
+image-with-image:
+  RUN apk add --update --no-cache \
+    qemu-system-x86_64 qemu-modules ovmf &&\
+    cp /usr/share/OVMF/OVMF_CODE.fd ./
+
+  COPY (src+live-img/live.img --kernel_options="rw console=ttyS0") .
+
+  ENTRYPOINT qemu-system-x86_64 \
+    -nographic -enable-kvm -smp 6 -m 4G \
+    -drive "if=pflash,format=raw,readonly=true,file=./OVMF_CODE.fd" \
+    -drive "if=virtio,format=raw,file=./live.img"
+
+  SAVE IMAGE archiso/run
