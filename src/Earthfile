@@ -90,8 +90,12 @@ rootfs-partition:
   # Configures rootfs by user's script
   ARG rootfs_configure_base64
   IF [ ! -z "$rootfs_configure_base64" ]
-    RUN --privileged echo "$rootfs_configure_base64" | base64 -d > ./root/do.sh &&\
-      chmod +x ./root/do.sh && arch-chroot ./root /do.sh && rm -rf ./root/do.sh
+    RUN --privileged \
+      echo "$rootfs_configure_base64" | base64 -d >\
+        ./root/configure_script.sh &&\
+      chmod +x ./root/configure_script.sh &&\
+      arch-chroot ./root /configure_script.sh &&\
+      rm -rf ./root/configure_script.sh
   END
 
   # Cleanes up and builds rootfs
