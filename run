@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# This file is the main start point for the project.
+# Usage:
+# run recipe_name
+set -euo pipefail
+source ./.run/do
+
+# Gets build options
+build_options+=(
+  "$(get_rootfs_configure_option rootfs_configure_script)"
+)
+build_options+=(
+  "$(get_kernel_options_option kernel_options)"
+)
+
+
+# Launches archlive build
+build-live-image() {
+  earthly --allow-privileged +live-image "${build_options[@]}"
+}
+
+
+# Tests live image boot on qemu virtual machine
+test-live-image-boot() {
+  earthly --allow-privileged +test-live-image-boot
+}
+
+
+# Launches docker container interactive with live image controlled by tty
+run() {
+  earthly --allow-privileged +docker-image-with-live-image
+  docker container run --privileged --rm -it archlive/live-image
+  docker image rm archlive/live-image
+}
+
+
+_run "$@"

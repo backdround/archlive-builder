@@ -12,16 +12,8 @@ assert_not_empty() {
   }
 }
 
-assert_absolute_path() {
-  test_absolute_path "${1:-}" || {
-    shift
-    error "$@"
-  }
-}
-
-assert_absolute_directory() {
-  assert_absolute_path "$@"
-  test -d "$1" || {
+assert_path_is_a_file() {
+  test -f "${1:-}" || {
     shift
     error "$@"
   }
@@ -33,8 +25,4 @@ assert_absolute_directory() {
 error() {
   echo "$@" >&2
   exit 1
-}
-
-test_absolute_path() {
-  [[ ${1:-} =~ ^/.* ]]
 }

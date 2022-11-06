@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Script contains logic functions
+set -euo pipefail
+
+# Makes build option from user rootfs configure scirpt.
+get_rootfs_configure_option() {
+  path_variable_name="$1"
+
+  # Checks if variable is set by user and exit if don't
+  if [[ -z ${!path_variable_name+x} ]]; then
+    exit 0
+  fi
+
+  assert_not_empty "${!path_variable_name}" \
+    "Rootfs configure script path mustn't be empty set"
+  assert_path_is_a_file "${!path_variable_name}" \
+    "Rootfs configure script isn't a file"
+
+  configure_scirpt_base64="$(cat "${!path_variable_name}" | base64 -w 0)"
+  echo "--rootfs_configure_base64=$configure_scirpt_base64"
+}
+
+# Makes build option from user kernel options.
+get_kernel_options_option() {
+  user_variable_name="$1"
+
+  # Checks if variable is set by user and exit if don't
+  if [[ -z ${!user_variable_name+x} ]]; then
+    exit 0
+  fi
+
+  echo "--kernel_options=\"${!user_variable_name}\""
+}
