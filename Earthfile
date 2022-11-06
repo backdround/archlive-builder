@@ -7,7 +7,14 @@ IMPORT --allow-privileged ./src/
 
 # Builds arch live image
 live-image:
-  COPY src+live-image/live.img .
+  ARG rootfs_configure_base64
+  ARG kernel_options
+
+  COPY (src+live-image/live.img \
+    --rootfs_configure_base64="$rootfs_configure_base64" \
+    --kernel_options="$kernel_options" \
+    ) \
+    .
   SAVE ARTIFACT ./live.img AS LOCAL output/live.img
 
 

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Script contains utility functions
+set -euo pipefail
+
+########################################
+# Asserts
+
+assert_not_empty() {
+  test -n "${1:-}" || {
+    shift
+    error "$@"
+  }
+}
+
+assert_absolute_path() {
+  test_absolute_path "${1:-}" || {
+    shift
+    error "$@"
+  }
+}
+
+assert_absolute_directory() {
+  assert_absolute_path "$@"
+  test -d "$1" || {
+    shift
+    error "$@"
+  }
+}
+
+########################################
+# Miscellanea
+
+error() {
+  echo "$@" >&2
+  exit 1
+}
+
+test_absolute_path() {
+  [[ ${1:-} =~ ^/.* ]]
+}
