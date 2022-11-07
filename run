@@ -3,7 +3,9 @@
 # Usage:
 # run recipe_name
 set -euo pipefail
-source ./.run/do
+current_script_directory="$(dirname "${BASH_SOURCE[0]}")"
+source "$current_script_directory/.run/do"
+
 
 # Gets build options
 build_options+=(

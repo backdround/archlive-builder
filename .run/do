@@ -20,6 +20,10 @@ _run() {
     error "There is no such function: $1"
   }
 
+  # Changes directory to source loader script directory.
+  local source_loader_script_directory="$(dirname "${BASH_SOURCE[1]}")"
+  cd "$source_loader_script_directory"
+
   # runs function
   $@
 }
