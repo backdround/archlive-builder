@@ -29,5 +29,5 @@ get_kernel_options_option() {
     exit 0
   fi
 
-  echo "--kernel_options=\"${!user_variable_name}\""
+  echo "--kernel_options=${!user_variable_name}"
 }
