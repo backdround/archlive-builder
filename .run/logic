@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Makes build option from user rootfs configure scirpt.
 get_rootfs_configure_option() {
-  path_variable_name="$1"
+  local path_variable_name="$1"
 
   # Checks if variable is set by user and exit if don't
   if [[ -z ${!path_variable_name+x} ]]; then
@@ -16,13 +16,13 @@ get_rootfs_configure_option() {
   assert_path_is_a_file "${!path_variable_name}" \
     "Rootfs configure script isn't a file"
 
-  configure_scirpt_base64="$(cat "${!path_variable_name}" | base64 -w 0)"
+  local configure_scirpt_base64="$(cat "${!path_variable_name}" | base64 -w 0)"
   echo "--rootfs_configure_base64=$configure_scirpt_base64"
 }
 
 # Makes build option from user kernel options.
 get_kernel_options_option() {
-  user_variable_name="$1"
+  local user_variable_name="$1"
 
   # Checks if variable is set by user and exit if don't
   if [[ -z ${!user_variable_name+x} ]]; then
