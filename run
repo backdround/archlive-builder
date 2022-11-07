@@ -23,12 +23,6 @@ build-live-image() {
 }
 
 
-# Tests live image boot on qemu virtual machine
-test-live-image-boot() {
-  earthly --allow-privileged +test-live-image-boot
-}
-
-
 # Launches docker container interactive with live image controlled by tty
 launch-interactive-tty() {
   assert_not_empty "$launch_interactive_image" \
@@ -44,5 +38,10 @@ launch-interactive-tty() {
     archlive/launcher
 }
 
+
+# Tests live image boot on qemu virtual machine
+test-live-image-boot() {
+  earthly --allow-privileged +test-live-image-boot
+}
 
 _run "$@"

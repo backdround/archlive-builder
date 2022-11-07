@@ -27,14 +27,6 @@ kernel_options | rw | false | It sets kernel boot options
 
 
 ---
-#### Test building process
-```bash
-# It builds custom image and checks boot errors
-./run test-live-image-boot
-```
-
-
----
 #### Run archlive image in terminal
 ```bash
 # Builds archlive image with required kernel option "console=ttyS0"
@@ -49,3 +41,11 @@ export launch_interactive_image="./output/live.img"
 Variable name | Default value | Required | Description
 -|-|- | -
 launch_interactive_image | - | true | It sets image to boot
+
+
+---
+#### Test building process
+```bash
+# It builds custom image and checks boot errors
+./run test-live-image-boot
+```
