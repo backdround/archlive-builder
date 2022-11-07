@@ -38,18 +38,12 @@ test-live-image-boot:
 
   RUN --privileged ./test.sh ./live.img ./OVMF_CODE.fd
 
-# Makes docker image with live-image configured for start on vm
-# with serial tty control
-docker-image-with-live-image:
+# Makes docker image for start mounted arch image on vm
+launcher-image:
+  WORKDIR /work
   RUN apk add --update --no-cache \
     qemu-system-x86_64 qemu-modules ovmf &&\
     cp /usr/share/OVMF/OVMF_CODE.fd ./
-
-  COPY (src+live-image/live.img \
-    --kernel_options="rw console=ttyS0" \
-    --use_random_rootfs_uuid=false) \
-    .
-
 
   IF [ ! -z "$(lsmod | grep kvm)" ]
     ENV kvm_flag="-enable-kvm"
@@ -57,9 +51,11 @@ docker-image-with-live-image:
     ENV kvm_flag=""
   END
 
+  ENV additional_qemu_flags=""
+
   ENTRYPOINT qemu-system-x86_64 \
-    -nographic $kvm_flag -smp 6 -m 4G \
+    \$additional_qemu_flags \$kvm_flag -smp 6 -m 4G \
     -drive "if=pflash,format=raw,readonly=true,file=./OVMF_CODE.fd" \
     -drive "if=virtio,format=raw,file=./live.img"
 
-  SAVE IMAGE archlive/live-image
+  SAVE IMAGE archlive/launcher

@@ -30,10 +30,18 @@ test-live-image-boot() {
 
 
 # Launches docker container interactive with live image controlled by tty
-run() {
-  earthly --allow-privileged +docker-image-with-live-image
-  docker container run --privileged --rm -it archlive/live-image
-  docker image rm archlive/live-image
+launch-interactive-tty() {
+  assert_not_empty "$launch_interactive_image" \
+    "launch_interactive_image isn't set"
+  assert_path_is_a_file "$launch_interactive_image" \
+    "launch_interactive_image isn't a file"
+
+  earthly --allow-privileged +launcher-image
+
+  docker container run --privileged --rm -it \
+    --env additional_qemu_flags=-nographic \
+    -v "$(realpath "$launch_interactive_image")":/work/live.img \
+    archlive/launcher
 }
 
 
