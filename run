@@ -14,6 +14,7 @@ build_options+=(
 build_options+=(
   "$(get_kernel_options_option kernel_options)"
 )
+remove_empty_elements_from_array build_options
 
 
 # Launches archlive build

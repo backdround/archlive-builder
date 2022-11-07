@@ -26,3 +26,13 @@ error() {
   echo "$@" >&2
   exit 1
 }
+
+remove_empty_elements_from_array() {
+  local -n _user_array="$1"
+
+  for i in "${!_user_array[@]}"; do
+    test -n "${_user_array[$i]}" || {
+      unset _user_array[$i]
+    }
+  done
+}
