@@ -11,10 +11,10 @@ minimization, reliability and verbosity.
 #### Build archlive image
 
 ```bash
-# Creates clear image
+# Creates clear image "output/live.img"
 ./run build-live-image
 
-# Creates custom image
+# Creates custom image "output/live.img"
 export rootfs_configure_script="./rootfs_configure.sh"
 export kernel_options="rw console=ttyS0"
 ./run build-live-image
