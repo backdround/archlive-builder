@@ -32,6 +32,12 @@ ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin root %I \$TERM
 EOF
 passwd -d root
 
+# Enables timesync
+install -m 755 -d /etc/systemd/system/sysinit.target.wants
+ln -sf /usr/lib/systemd/system/systemd-timesyncd.service \
+  /etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service
+ln -sf /usr/lib/systemd/system/systemd-time-wait-sync.service \
+  /etc/systemd/system/sysinit.target.wants/systemd-time-wait-sync.service
 
 # Configures hostname / id
 echo "archlive" > /etc/hostname
