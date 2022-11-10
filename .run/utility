@@ -19,6 +19,12 @@ assert_path_is_a_file() {
   }
 }
 
+assert_docker_is_run() {
+  docker info > /dev/null 2>&1 || {
+    error "Docker daemon isn't run"
+  }
+}
+
 ########################################
 # Miscellanea
 

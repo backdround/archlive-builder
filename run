@@ -17,6 +17,9 @@ build_options+=(
 remove_empty_elements_from_array build_options
 
 
+assert_docker_is_run
+
+
 # Launches archlive build
 build-live-image() {
   earthly --allow-privileged +live-image "${build_options[@]}"
