@@ -22,7 +22,7 @@ mount_readonly_fs_from_partition() {
   fi
 
   mount --mkdir -o "ro,defaults" "$root_device" /run/realroot
-  mount --mkdir -t tmpfs overlay_upper -o size=256M,mode=0755 /run/cowspace
+  mount --mkdir -t tmpfs overlay_upper -o size=75%,mode=0755 /run/cowspace
 
   install -m 0755 -d /run/cowspace/work
   install -m 0755 -d /run/cowspace/upper
