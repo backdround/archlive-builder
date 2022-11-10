@@ -3,6 +3,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
+set +o history
 
 # Fix package installation under arch-chroot.
 sed -i "s/CheckSpace/#CheckSpace/g" /etc/pacman.conf
@@ -42,3 +43,8 @@ ln -sf /usr/lib/systemd/system/systemd-time-wait-sync.service \
 # Configures hostname / id
 echo "archlive" > /etc/hostname
 echo -n '' > /etc/machine-id
+
+
+# Cleans all cache
+rm -rf /boot/* /var/lib/pacman/sync/* /var/log/*
+history -c
