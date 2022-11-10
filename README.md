@@ -25,6 +25,24 @@ Variable name | Default value | Required | Description
 rootfs_configure_script | - | false | It configures rootfs from chroot
 kernel_options | rw | false | It sets kernel boot options
 
+##### Example of rootfs_configure_script:
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Downloads some packages
+pacman -Sy nano tree vi npm
+
+# Changes configs
+echo "ee2e" > /etc/hostname
+
+# Bulids some project
+cd /root
+ln -s /cache node_modules
+npm i simple-js-project
+```
+Note that path `/cache` is used as a cache betweet builds.
+
 
 ---
 #### Run archlive image in terminal
