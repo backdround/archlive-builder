@@ -89,6 +89,7 @@ rootfs-partition:
   COPY ./rootfs/rootfs-pre-configure.sh ./
   RUN --mount=type=cache,target=./root/var/cache/pacman/pkg --privileged \
     mkdir -p ./root && pacstrap ./root base linux &&\
+    ln -sf /run/systemd/resolve/stub-resolv.conf ./root/etc/resolv.conf &&\
     arch-chroot ./root < ./rootfs-pre-configure.sh
 
   # Configures rootfs by user's script
