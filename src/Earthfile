@@ -34,6 +34,10 @@ kernel-and-initramfs:
   RUN --mount=type=cache,target=./var/cache/pacman/pkg --privileged \
     pacstrap ./ sed linux mkinitcpio
 
+  # Gets kernel version
+  RUN pacman --root ./ -Qi linux | sed -nE 's/Version.*: //gp' > linux-version.txt
+
+  SAVE ARTIFACT ./linux-version.txt ./ AS LOCAL ./output/
   SAVE ARTIFACT ./boot/vmlinuz-linux ./ AS LOCAL ./output/
   SAVE ARTIFACT ./boot/initramfs-linux.img ./ AS LOCAL ./output/
 
@@ -97,6 +101,15 @@ rootfs-partition:
       arch-chroot ./root /configure_script.sh &&\
       rm -rf ./root/configure_script.sh
   END
+
+
+  # Asserts equality of version between efi linux ootfs linux
+  RUN pacman --root ./root -Qi linux | sed -nE 's/Version.*: //gp' > \
+    root-linux-version.txt
+  COPY +kernel-and-initramfs/linux-version.txt .
+  RUN diff root-linux-version.txt ./linux-version.txt \
+    || (echo "Versions of esp and rootfs are different. Please drop the cache" >&2 && exit 1)
+
 
   # Builds rootfs
   RUN mkfs.erofs '-zlz4hc,2' -E ztailpacking ./rootfs.part ./root > /dev/null
