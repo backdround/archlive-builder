@@ -18,6 +18,25 @@ Name=eth*
 
 [Network]
 DHCP=yes
+IPv6PrivacyExtensions=yes
+EOF
+
+cat > /etc/systemd/network/20-wlan.network <<EOF
+[Match]
+Name=wl*
+
+[Network]
+DHCP=yes
+IPv6PrivacyExtensions=yes
+EOF
+
+cat > /etc/systemd/network/20-wwan.network <<EOF
+[Match]
+Name=ww*
+
+[Network]
+DHCP=yes
+IPv6PrivacyExtensions=yes
 EOF
 
 systemctl enable systemd-networkd.service
