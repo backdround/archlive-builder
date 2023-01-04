@@ -73,6 +73,23 @@ esp-partition:
 
   SAVE ARTIFACT ./esp.part ./ AS LOCAL ./output/
 
+# Returns configure script from user's fs or stub script.
+get-user-rootfs-configure-script:
+  LOCALLY
+
+  ARG rootfs_configure_script
+  IF [ -n "$rootfs_configure_script" ]
+    IF [ ! -f "$rootfs_configure_script" ]
+      RUN echo "Unable to find configure script: $rootfs_configure_script" >&2 \
+        && exit 1
+    END
+    SAVE ARTIFACT "$rootfs_configure_script" script.sh
+  ELSE
+    FROM +base
+    RUN echo -e "#!/bin/sh\necho configure not set\n" > ./stub.sh
+    SAVE ARTIFACT ./stub.sh script.sh
+  END
+
 
 # Makes root file system (erofs) by pacstrap.
 rootfs-partition:
@@ -93,16 +110,12 @@ rootfs-partition:
     arch-chroot ./root < ./rootfs-pre-configure.sh
 
   # Configures rootfs by user's script
-  ARG rootfs_configure_base64
-  IF [ ! -z "$rootfs_configure_base64" ]
-    RUN --mount=type=cache,target=./root/cache --privileged \
-      echo "$rootfs_configure_base64" | base64 -d >\
-        ./root/configure_script.sh &&\
-      chmod +x ./root/configure_script.sh &&\
-      arch-chroot ./root /configure_script.sh &&\
-      rm -rf ./root/configure_script.sh
-  END
-
+  COPY +get-user-rootfs-configure-script/script.sh \
+    ./root/rootfs_configure.sh
+  RUN --mount=type=cache,target=./root/cache --privileged \
+    chmod +x ./root/rootfs_configure.sh &&\
+    arch-chroot ./root /rootfs_configure.sh &&\
+    rm -rf ./root/rootfs_configure.sh
 
   # Asserts equality of version between efi linux ootfs linux
   RUN pacman --root ./root -Qi linux | sed -nE 's/Version.*: //gp' > \

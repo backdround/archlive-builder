@@ -7,16 +7,15 @@ IMPORT --allow-privileged ./src/
 
 # Builds arch live image
 live-image:
-  ARG rootfs_configure_base64
+  ARG rootfs_configure_script
   ARG kernel_options
 
   COPY (src+live-image/live.img \
-    --rootfs_configure_base64="$rootfs_configure_base64" \
+    --rootfs_configure_script="$rootfs_configure_script" \
     --kernel_options="$kernel_options" \
     ) \
     .
   SAVE ARTIFACT ./live.img AS LOCAL output/live.img
-
 
 # Validates arch live image. It boots live image and checks failed services
 test-live-image-boot:
@@ -26,12 +25,10 @@ test-live-image-boot:
 
   COPY \
     ./test/test.sh \
-    ./test/rootfs-test-configure.sh \
     .
 
-  ARG rootfs_configure_base64="$(cat ./rootfs-test-configure.sh | base64 -w 0)"
   COPY (src+live-image/live.img \
-    --rootfs_configure_base64="$rootfs_configure_base64" \
+    --rootfs_configure_script="../test/rootfs-test-configure.sh" \
     --kernel_options="rw console=ttyS0" \
     --use_random_rootfs_uuid=false) \
     .

@@ -16,8 +16,8 @@ get_rootfs_configure_option() {
   assert_path_is_a_file "${!path_variable_name}" \
     "Rootfs configure script isn't a file"
 
-  local configure_scirpt_base64="$(cat "${!path_variable_name}" | base64 -w 0)"
-  echo "--rootfs_configure_base64=$configure_scirpt_base64"
+  rootfs_configure_path="$(realpath "${!path_variable_name}")"
+  echo "--rootfs_configure_script=$rootfs_configure_path"
 }
 
 # Makes build option from user kernel options.
