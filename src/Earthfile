@@ -133,7 +133,7 @@ live-image:
 
   # Generates random rootfs uuid
   ARG use_random_rootfs_uuid="true"
-  IF use_random_rootfs_uuid
+  IF [ "$use_random_rootfs_uuid" = "true" ]
     RUN --no-cache uuidgen > rootfs_uuid.txt
   ELSE
     RUN uuidgen > rootfs_uuid.txt
