@@ -12,4 +12,4 @@ jobs:
       - name: Show version
         run: earthly --version
       - name: Build image test
-        run: earthly --ci --allow-privileged +live-image
+        run: earthly --no-output --allow-privileged +live-image
