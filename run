@@ -7,28 +7,35 @@ current_script_directory="$(dirname "${BASH_SOURCE[0]}")"
 source "$current_script_directory/.run/do"
 
 
-# Gets build options
-build_options+=(
-  "$(get_rootfs_configure_option rootfs_configure_script)"
-)
-build_options+=(
-  "$(get_kernel_options_option kernel_options)"
-)
-remove_empty_elements_from_array build_options
-
-
-assert_docker_is_run
-
-
 # Launches archlive build
 build-live-image() {
+
+  # Gets rootfs_configure_script
+  if [[ -n "${rootfs_configure_script:-}" ]]; then
+    rootfs_configure_script=$(make_absolute_path "$rootfs_configure_script")
+    assert_path_is_a_file "$rootfs_configure_script" \
+      "Rootfs configure script isn't a file"
+
+    build_options+=(
+      "--rootfs_configure_script=$rootfs_configure_script"
+    )
+  fi
+
+  # Gets kernel options
+  if [[ -n "${kernel_options:-}" ]]; then
+    build_options+=(
+      "--kernel_options=$kernel_options"
+    )
+  fi
+
+  # Builds live image
   earthly --allow-privileged +live-image "${build_options[@]}"
 }
 
 
 # Launches docker container interactive with live image controlled by tty
 launch-interactive-tty() {
-  assert_not_empty "$launch_interactive_image" \
+  assert_not_empty "${launch_interactive_image:-}" \
     "launch_interactive_image isn't set"
   assert_path_is_a_file "$launch_interactive_image" \
     "launch_interactive_image isn't a file"

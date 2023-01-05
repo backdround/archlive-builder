@@ -7,8 +7,8 @@ set -euo pipefail
 # Sources all functions
 current_script_directory="$(dirname "${BASH_SOURCE[0]}")"
 source "$current_script_directory/utility"
-source "$current_script_directory/logic"
 
+INVOCATION_DIRECTORY="$(pwd)"
 
 # runs function with arguments
 _run() {

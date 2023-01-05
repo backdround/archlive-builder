@@ -19,12 +19,6 @@ assert_path_is_a_file() {
   }
 }
 
-assert_docker_is_run() {
-  docker info > /dev/null 2>&1 || {
-    error "Docker daemon isn't run"
-  }
-}
-
 ########################################
 # Miscellanea
 
@@ -33,12 +27,18 @@ error() {
   exit 1
 }
 
-remove_empty_elements_from_array() {
-  local -n _user_array="$1"
+make_absolute_path() {
+  test -n "${1:-}" || {
+    error "Path to check is required"
+  }
 
-  for i in "${!_user_array[@]}"; do
-    test -n "${_user_array[$i]}" || {
-      unset _user_array[$i]
-    }
-  done
+  # If path is absolute
+  if [[ "$1" = /* ]]; then
+    echo "$1"
+    return 0
+  fi
+
+  # If path is relative
+  echo "$(realpath "$INVOCATION_DIRECTORY/$1")"
+  return 0
 }
