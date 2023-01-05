@@ -25,7 +25,9 @@ Variable name | Default value | Required | Description
 rootfs_configure_script | - | false | It configures rootfs from chroot
 kernel_options | rw | false | It sets kernel boot options
 
-##### Example of rootfs_configure_script:
+<details>
+<summary> rootfs_configure_script example </summary>
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -41,7 +43,9 @@ cd /root
 ln -s /cache node_modules
 npm i simple-js-project
 ```
-Note that path `/cache` is used as a cache betweet builds.
+Note that path `/cache` can be used as a cache betweet builds.
+
+</details>
 
 
 ---
