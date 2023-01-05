@@ -66,8 +66,8 @@ launch_interactive_image | - | true | It sets image to boot
 
 
 ---
-#### Test building process
+#### Test builder itself
 ```bash
-# It builds custom image and checks boot errors
-./run test-live-image-boot
+# It builds custom image and checks boot errors by ssh
+./run test-buidler
 ```

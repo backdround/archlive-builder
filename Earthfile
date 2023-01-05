@@ -17,24 +17,6 @@ live-image:
     .
   SAVE ARTIFACT ./live.img AS LOCAL output/live.img
 
-# Validates arch live image. It boots live image and checks failed services
-test-live-image-boot:
-  RUN apk add --update --no-cache \
-    qemu-system-x86_64 qemu-modules ovmf openssh &&\
-    cp /usr/share/OVMF/OVMF_CODE.fd ./
-
-  COPY \
-    ./test/test.sh \
-    .
-
-  COPY (src+live-image/live.img \
-    --rootfs_configure_script="../test/rootfs-test-configure.sh" \
-    --kernel_options="rw console=ttyS0" \
-    --use_random_rootfs_uuid=false) \
-    .
-
-  RUN --privileged ./test.sh ./live.img ./OVMF_CODE.fd
-
 # Makes docker image for start mounted arch image on vm
 launcher-image:
   WORKDIR /work
@@ -56,3 +38,18 @@ launcher-image:
     -drive "if=virtio,format=raw,file=./live.img"
 
   SAVE IMAGE archlive/launcher
+
+# Validates build process. It boots live image and checks failed services
+test-builder:
+  RUN apk add --update --no-cache \
+    qemu-system-x86_64 qemu-modules ovmf openssh &&\
+    cp /usr/share/OVMF/OVMF_CODE.fd ./
+
+  COPY (src+live-image/live.img \
+    --rootfs_configure_script="../test/rootfs-test-configure.sh" \
+    --kernel_options="rw console=ttyS0" \
+    --use_random_rootfs_uuid=false) \
+    .
+
+  COPY ./test/test.sh .
+  RUN --privileged ./test.sh ./live.img ./OVMF_CODE.fd

@@ -50,8 +50,8 @@ launch-interactive-tty() {
 
 
 # Tests live image boot on qemu virtual machine
-test-live-image-boot() {
-  earthly --allow-privileged +test-live-image-boot
+test-builder() {
+  earthly --allow-privileged +test-builder
 }
 
 _run "$@"
