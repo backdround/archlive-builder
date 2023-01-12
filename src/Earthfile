@@ -90,6 +90,24 @@ get-user-rootfs-configure-script:
     SAVE ARTIFACT ./stub.sh script.sh
   END
 
+# Returns directory with or without user's directory to copy
+get-user-directory-to-copy:
+  LOCALLY
+
+  ARG artifact_directory="/tmp/archlive-builder-user-artifact"
+  RUN rm -rf "$artifact_directory" && mkdir -p "$artifact_directory"
+
+  ARG directory_to_copy
+  IF [ -n "$directory_to_copy" ]
+    IF [ ! -d "$directory_to_copy" ]
+      RUN echo "Unable to find directory to copy: $directory_to_copy" >&2 \
+        && exit 1
+    END
+    RUN cp -a "$directory_to_copy" "$artifact_directory"
+  END
+
+  SAVE ARTIFACT "$artifact_directory" ./artifact
+  RUN rm -rf "$artifact_directory"
 
 # Makes root file system (erofs) by pacstrap.
 rootfs-partition:
@@ -108,6 +126,10 @@ rootfs-partition:
     mkdir -p ./root && pacstrap ./root base linux &&\
     ln -sf /run/systemd/resolve/stub-resolv.conf ./root/etc/resolv.conf &&\
     arch-chroot ./root < ./rootfs-pre-configure.sh
+
+  # Copy user directory
+  COPY +get-user-directory-to-copy/artifact ./artifact
+  RUN cp -a ./artifact/. ./root/root
 
   # Configures rootfs by user's script
   COPY +get-user-rootfs-configure-script/script.sh \

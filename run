@@ -28,6 +28,17 @@ build-live-image() {
     )
   fi
 
+  # Gets directory to copy
+  if [[ -n "${directory_to_copy:-}" ]]; then
+    directory_to_copy=$(make_absolute_path "$directory_to_copy")
+    assert_path_is_a_directory "$directory_to_copy" \
+      "Directory to copy isn't a directory"
+
+    build_options+=(
+      "--directory_to_copy=$directory_to_copy"
+    )
+  fi
+
   # Builds live image
   earthly --allow-privileged +live-image "${build_options[@]}"
 }

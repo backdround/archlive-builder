@@ -9,10 +9,12 @@ IMPORT --allow-privileged ./src/
 live-image:
   ARG rootfs_configure_script
   ARG kernel_options
+  ARG directory_to_copy
 
   COPY (src+live-image/live.img \
     --rootfs_configure_script="$rootfs_configure_script" \
     --kernel_options="$kernel_options" \
+    --directory_to_copy="$directory_to_copy" \
     ) \
     .
   SAVE ARTIFACT ./live.img AS LOCAL output/live.img

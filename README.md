@@ -23,6 +23,15 @@ export rootfs_configure_script="./rootfs_configure.sh"
 # default: rw
 export kernel_options="rw console=ttyS0"
 
+
+# Additional directory to copy into live image.
+# It will be copyed into /root directory.
+# It is copied before rootfs_configure_script is executed.
+#
+# optional: true
+# default: -
+export directory_to_copy="./some-directory"
+
 # Creates custom image "output/live.img"
 ./run build-live-image
 ```

@@ -19,6 +19,13 @@ assert_path_is_a_file() {
   }
 }
 
+assert_path_is_a_directory() {
+  test -d "${1:-}" || {
+    shift
+    error "$@"
+  }
+}
+
 ########################################
 # Miscellanea
 
