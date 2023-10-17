@@ -115,7 +115,7 @@ rootfs-partition:
 
   # Installs erofs
   RUN apk --update --no-cache add git automake autoconf libtool g++ pkgconf \
-    util-linux-dev make lz4-dev &&\
+    util-linux-dev make lz4-dev zlib-dev &&\
     git clone https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git &&\
     ( cd erofs-utils && ./autogen.sh && ./configure && make && make install ) &&\
     rm -rf erofs-utils
